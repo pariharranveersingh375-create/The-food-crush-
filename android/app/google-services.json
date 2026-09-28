@@ -1,0 +1,31 @@
+{
+  "project_info": {
+    "project_number": "225645867621",
+    "project_id": "foodcrush-ratlam-2026",
+    "storage_bucket": "foodcrush-ratlam-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225645867621:android:3832c134ec00859f700c8c",
+        "android_client_info": {
+          "package_name": "com.thefoodcrush.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnOPzguzjT6pMT53iwa9CdO51WVP-SiJk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+
+Error: An unexpected error has occurred.

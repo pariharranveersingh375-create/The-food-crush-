@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const FoodCrushApp());
 }
 
@@ -700,7 +704,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.dispose();
   }
 
-  void placeOrder() {
+  Future<void> placeOrder() async {
     if (nameController.text.trim().isEmpty ||
         mobileController.text.trim().isEmpty ||
         addressController.text.trim().isEmpty) {
@@ -712,16 +716,53 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return;
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => OrderSuccessPage(
-          name: nameController.text.trim(),
-          total: widget.total,
-          paymentMethod: paymentMethod,
+    try {
+      final orderRef =
+          FirebaseFirestore.instance.collection('orders').doc();
+
+      final items = widget.cart.map((cartItem) {
+        return {
+          'name': cartItem.item.name,
+          'price': cartItem.item.price,
+          'quantity': cartItem.quantity,
+          'total': cartItem.total,
+        };
+      }).toList();
+
+      await orderRef.set({
+        'orderId': orderRef.id,
+        'customerName': nameController.text.trim(),
+        'mobile': mobileController.text.trim(),
+        'address': addressController.text.trim(),
+        'items': items,
+        'total': widget.total,
+        'paymentMethod': paymentMethod,
+        'paymentStatus': paymentMethod == 'COD' ? 'pending' : 'pending',
+        'orderStatus': 'new',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OrderSuccessPage(
+            name: nameController.text.trim(),
+            total: widget.total,
+            paymentMethod: paymentMethod,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Order failed: $e'),
+        ),
+      );
+    }
   }
 
   @override
